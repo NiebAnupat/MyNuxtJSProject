@@ -10,7 +10,7 @@ export const getter = {}
 export const mutations = {}
 
 export const actions = {
-  async nuxtServerInit({ commit }, { req }) {
+  async nuxtServerInit({ commit, dispatch}, { req }) {
     console.log('nuxtServerInit....')
 
     if (process.server && process.static) return;
@@ -32,7 +32,8 @@ export const actions = {
     
 
     await commit('users/setUser', user)
-
+    await dispatch('todos/fetchTodos');
+  
     console.log('user logged in')
   },
 }

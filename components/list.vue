@@ -2,10 +2,10 @@
   <div>
     <v-container mt-2 class="white rounded">
       <v-layout row wrap class="ma-2">
-        <v-row class="">
+        <v-row >
           <v-col md="1" sm="1" lg="1" xl="1"  align-self="center"  >
             <v-checkbox
-              :value="task.done"
+              :input-value="task.status"
               color="success"
               hide-details
               class=" mb-sm-3 mb-md-3 ml-md-1 mb-lg-5 ml-lg-3"
@@ -14,14 +14,14 @@
           </v-col>
           
           <v-col  sm="11" md="" >
-            <h2 :class=" task.done !== true ? `` : `grey--text text--darken-1  text-decoration-line-through`">{{ task.title }}</h2>
+            <h2 :class=" task.status !== true ? `` : `grey--text text--darken-1  text-decoration-line-through`">{{ task.title }}</h2>
             <v-divider width="50%"></v-divider>
             <v-text-field
               :value="task.description"
               readonly
               style="cursor: default"
               
-              :class=" task.done !== true ? `` :`grey--text text-decoration-line-through`"
+              :class=" task.status !== true ? `` :`grey--text text-decoration-line-through`"
             ></v-text-field>
           </v-col>
           <v-col sm="12" md="3" lg="2" align-self="center" class="text-center">

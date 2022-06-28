@@ -4,9 +4,7 @@ export const state = () => ({
 })
 
 export const getters = {
-  getUser(state) {
-    return state.user
-  },
+  getUser:(state) => state.user,
 }
 
 export const mutations = {

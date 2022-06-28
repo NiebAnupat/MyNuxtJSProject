@@ -20,10 +20,10 @@ export const getters = {
 export const mutations = {
   add(state, task) {
     state.list.push({
-      id: state.list.length + 1,
+      id: String(state.list.length + 1),
       title: task.title,
       description: task.description,
-      done: false,
+      status: false,
     })
     console.log('task added')
   },
@@ -31,40 +31,98 @@ export const mutations = {
     state.list.splice(state.list.indexOf(task), 1)
   },
   toggle(state, task) {
-    task.done = !task.done
+    task.status = !task.status
+  },
+  setTodos(state, todos) {
+    state.list = todos
   },
 }
 
 export const actions = {
   async add({ commit, dispatch }, todo) {
     await commit('add', todo)
-    await dispatch('saveTask')
-      .then(() => {
-        console.log('task saved')
+
+    await dispatch('saveTask').catch((err) => {
+      throw err
+    })
+  },
+  async remove({ commit, rootGetters }, todo) {
+    const { uid } = await rootGetters['users/getUser']
+    await this.$fire.firestore
+      .collection('users')
+      .doc(uid)
+      .collection('todos')
+      .where('id', '==', todo.id)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          doc.ref.delete()
+        })
+        commit('remove', todo)
+        console.log('task removed')
       })
       .catch((err) => {
         throw err
       })
   },
-  remove({ commit }, todo) {
-    commit('remove', todo)
-  },
-  toggle({ commit }, todo) {
-    commit('toggle', todo)
+  async toggle({ commit,dispatch,rootGetters }, todo) {
+    
+    const { uid } = await rootGetters['users/getUser']
+    await this.$fire.firestore
+    .collection('users')
+      .doc(uid)
+      .collection('todos')
+      .where('id', '==', todo.id)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          doc.ref.update({
+            status: !todo.status,
+          })
+        })
+        commit('toggle', todo)
+        console.log('task toggled status!')
+        dispatch('fetchTodos')
+      })
+      .catch((err) => {
+        throw err
+      })
+    
   },
 
-  async saveTask({ getters }) {
+  async saveTask({ getters, rootGetters }) {
     console.log('saving task to database....')
-    const task = await getters.getLastTask;
-    const { uid } = await this.$fire.auth.currentUser;
-
+    const task = await getters.getLastTask
+    const { uid } = await rootGetters['users/getUser']
     await this.$fire.firestore
       .collection('users')
       .doc(uid)
       .collection('todos')
       .add(task)
+      .then(() => {
+        console.log('task saved')
+      })
+      .catch((e) => {
+        throw e
+      })
+  },
+  async fetchTodos({ commit, rootGetters }) {
+    const { uid } = await rootGetters['users/getUser']
+    const todos = await this.$fire.firestore
+      .collection('users')
+      .doc(uid)
+      .collection('todos')
+      .orderBy('status', 'asc')
+      .get()
+      .then((snapshot) => {
+        return snapshot.docs.map((doc) => {
+          return doc.data()
+        })
+      })
       .catch((err) => {
         throw err
       })
+    commit('setTodos', todos)
+    console.log('todos fetched')
   },
 }

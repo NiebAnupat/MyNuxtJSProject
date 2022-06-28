@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10">
+  <div>
     <v-container class="blue-grey lighten-4 rounded">
       <h2 class="white--text text-center">Add Task Form</h2>
       <v-layout row wrap class="pa-5">
@@ -61,9 +61,6 @@ export default {
             title: '',
             description: '',
           }
-        })
-        .catch((err) => {
-          console.log(err)
         })
     },
   },
